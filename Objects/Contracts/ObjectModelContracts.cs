@@ -24,6 +24,14 @@ public sealed record FurnitureColorData(
     bool UseCustomColor,
     ObjectVector4 CustomColor);
 
+/// <summary> furniture material item selected by the material slot </summary>
+/// <param name="Name"> material item display name </param>
+/// <param name="ItemId"> material item row id </param>
+[MessagePackObject(keyAsPropertyName: true)]
+public sealed record FurnitureMaterialItemData(
+    string Name,
+    uint ItemId);
+
 /// <summary> furniture model data </summary>
 /// <param name="SharedGroupPath"> furniture shared group path </param>
 /// <param name="Color"> furniture color settings </param>
@@ -31,7 +39,8 @@ public sealed record FurnitureColorData(
 /// <param name="OutlineColor"> draw object outline color applied to shared-group graphics </param>
 /// <param name="HousingRowId"> resolved housing furniture row id when known </param>
 /// <param name="ItemRowId"> resolved item row id when known </param>
-/// <param name="AttachmentParentId"> imported MakePlace parent furniture id when this furniture is attached to another furniture item </param>
+/// <param name="AttachmentParentId"> parent furniture object id when this furniture is attached to another furniture item </param>
+/// <param name="MaterialItem"> furniture material item selected by the material slot </param>
 [MessagePackObject(keyAsPropertyName: true)]
 public sealed record FurnitureModelData(
     string SharedGroupPath,
@@ -40,7 +49,8 @@ public sealed record FurnitureModelData(
     ObjectOutlineColor OutlineColor,
     uint HousingRowId,
     uint ItemRowId,
-    Guid? AttachmentParentId);
+    Guid? AttachmentParentId,
+    FurnitureMaterialItemData? MaterialItem = null);
 
 /// <summary> VFX model data </summary>
 /// <param name="VfxPath"> VFX game path </param>
