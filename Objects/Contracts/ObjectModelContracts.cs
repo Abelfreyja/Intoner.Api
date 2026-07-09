@@ -55,10 +55,14 @@ public sealed record FurnitureModelData(
 /// <summary> VFX model data </summary>
 /// <param name="VfxPath"> VFX game path </param>
 /// <param name="Color"> VFX tint in normalized rgba </param>
+/// <param name="Loop"> whether the VFX should replay on an interval </param>
+/// <param name="LoopIntervalSeconds"> VFX replay interval in seconds when looping is enabled </param>
 [MessagePackObject(keyAsPropertyName: true)]
 public sealed record VfxModelData(
     string VfxPath,
-    ObjectVector4 Color);
+    ObjectVector4 Color,
+    bool Loop = false,
+    int LoopIntervalSeconds = 5);
 
 /// <summary> light flags </summary>
 /// <param name="EnableMaterialReflection"> whether the light affects material reflections </param>
@@ -163,10 +167,14 @@ public sealed record FurnitureModelPatchData(
 /// <summary> VFX model patch </summary>
 /// <param name="VfxPath"> updated VFX game path, or null to keep the current path </param>
 /// <param name="Color"> updated VFX tint, or null to keep the current value </param>
+/// <param name="Loop"> updated VFX loop setting, or null to keep the current value </param>
+/// <param name="LoopIntervalSeconds"> updated VFX loop interval, or null to keep the current value </param>
 [MessagePackObject(keyAsPropertyName: true)]
 public sealed record VfxModelPatchData(
     string? VfxPath = null,
-    ObjectVector4? Color = null);
+    ObjectVector4? Color = null,
+    bool? Loop = null,
+    int? LoopIntervalSeconds = null);
 
 /// <summary> light flags patch </summary>
 /// <param name="EnableMaterialReflection"> updated material reflection check, or null to keep the current value </param>
