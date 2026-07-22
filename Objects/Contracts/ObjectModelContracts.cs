@@ -55,12 +55,20 @@ public sealed record FurnitureModelData(
 /// <summary> VFX model data </summary>
 /// <param name="VfxPath"> VFX game path </param>
 /// <param name="Color"> VFX tint in normalized rgba </param>
+/// <param name="Speed"> VFX playback speed multiplier </param>
+/// <param name="Paused"> whether VFX playback is paused </param>
+/// <param name="FadeInSeconds"> fade-in duration applied whenever the VFX is played </param>
+/// <param name="ReplayOnTransform"> whether the VFX should replay after its transform changes </param>
 /// <param name="Loop"> whether the VFX should replay on an interval </param>
 /// <param name="LoopIntervalSeconds"> VFX replay interval in seconds when looping is enabled </param>
 [MessagePackObject(keyAsPropertyName: true)]
 public sealed record VfxModelData(
     string VfxPath,
     ObjectVector4 Color,
+    float Speed = 1f,
+    bool Paused = false,
+    float FadeInSeconds = 0f,
+    bool ReplayOnTransform = false,
     bool Loop = false,
     int LoopIntervalSeconds = 5);
 
@@ -167,12 +175,20 @@ public sealed record FurnitureModelPatchData(
 /// <summary> VFX model patch </summary>
 /// <param name="VfxPath"> updated VFX game path, or null to keep the current path </param>
 /// <param name="Color"> updated VFX tint, or null to keep the current value </param>
+/// <param name="Speed"> updated VFX playback speed, or null to keep the current value </param>
+/// <param name="Paused"> updated VFX pause state, or null to keep the current value </param>
+/// <param name="FadeInSeconds"> updated VFX fade-in duration, or null to keep the current value </param>
+/// <param name="ReplayOnTransform"> updated transform replay setting, or null to keep the current value </param>
 /// <param name="Loop"> updated VFX loop setting, or null to keep the current value </param>
 /// <param name="LoopIntervalSeconds"> updated VFX loop interval, or null to keep the current value </param>
 [MessagePackObject(keyAsPropertyName: true)]
 public sealed record VfxModelPatchData(
     string? VfxPath = null,
     ObjectVector4? Color = null,
+    float? Speed = null,
+    bool? Paused = null,
+    float? FadeInSeconds = null,
+    bool? ReplayOnTransform = null,
     bool? Loop = null,
     int? LoopIntervalSeconds = null);
 
