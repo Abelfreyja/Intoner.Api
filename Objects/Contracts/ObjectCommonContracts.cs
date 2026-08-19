@@ -45,36 +45,60 @@ public enum ObjectOutlineColor : byte
 /// <summary> loaded layout type </summary>
 public enum LoadedObjectLayoutType
 {
+    /// <summary> the local persistent default layout </summary>
     Default = 1,
+    /// <summary> a caller owned temporary source </summary>
     Temporary = 2,
 }
 
 /// <summary> runtime object state </summary>
 public enum RuntimeObjectStateKind
 {
+    /// <summary> the object has an active game runtime </summary>
     Active = 1,
+    /// <summary> the object belongs to the current location but is not active </summary>
     Inactive = 2,
+    /// <summary> the object belongs to another location </summary>
     LocationMismatch = 3,
+    /// <summary> runtime creation failed </summary>
     LoadFailed = 4,
 }
 
 /// <summary> temporary source mutation status </summary>
 public enum TemporarySourceMutationStatus
 {
+    /// <summary >the requested source revision was applied </summary>
     Success = 0,
+    /// <summary> source identity, session, or revision data is invalid </summary>
     InvalidSource = 1,
+    /// <summary> one or more object payloads are invalid </summary>
     InvalidObject = 2,
+    /// <summary> the requested revision is older than authoritative state </summary>
     StaleRevision = 3,
+    /// <summary> the requested source or object does not exist </summary>
     ObjectNotFound = 4,
+    /// <summary> the request uses a different source session </summary>
     SourceMismatch = 5,
+    /// <summary> source state was accepted but runtime reconciliation failed </summary>
     RuntimeApplyFailed = 6,
+    /// <summary> the same source revision was already accepted </summary>
+    AlreadyApplied = 7,
+    /// <summary> one or more collection payloads are invalid </summary>
+    InvalidCollection = 8,
+    /// <summary> the source is not owned by the calling plugin </summary>
+    OwnershipMismatch = 9,
+    /// <summary> one or more runtime object identities are already owned by another scene source </summary>
+    IdentityConflict = 10,
 }
 
 /// <summary> temporary object change kind </summary>
 public enum TemporaryObjectChangeKind
 {
+    /// <summary> creates or replaces one source object </summary>
     Upsert = 1,
+    /// <summary> removes one source object </summary>
     Remove = 2,
+    /// <summary> partially updates one source object </summary>
     Patch = 3,
 }
 
@@ -109,26 +133,6 @@ public readonly record struct ObjectVector3(float X, float Y, float Z);
 [StructLayout(LayoutKind.Sequential)]
 public readonly record struct ObjectVector4(float X, float Y, float Z, float W);
 
-/// <summary> saved object location context </summary>
-/// <param name="WorldId"> world id, or '0' to refresh from the current location on local create or import </param>
-/// <param name="WorldName"> world display name </param>
-/// <param name="TerritoryId"> territory id, or '0' to refresh from the current location on local create or import </param>
-/// <param name="TerritoryName"> territory display name </param>
-/// <param name="DivisionId"> housing division id for the saved location </param>
-/// <param name="WardId"> housing ward id for the saved location </param>
-/// <param name="HouseId"> housing plot or apartment if id is 100 (thank me later) </param>
-/// <param name="RoomId"> apartment or housing room id for the saved location </param>
-[MessagePackObject(keyAsPropertyName: true)]
-public sealed record ObjectCreationData(
-    ushort WorldId,
-    string WorldName,
-    uint TerritoryId,
-    string TerritoryName,
-    uint DivisionId,
-    uint WardId,
-    uint HouseId,
-    uint RoomId);
-
 /// <summary> object transform </summary>
 /// <param name="Position"> world position </param>
 /// <param name="RotationDegrees"> euler rotation in degrees </param>
@@ -139,20 +143,20 @@ public sealed record WorldObjectTransform(
     ObjectVector3 RotationDegrees,
     ObjectVector3 Scale);
 
-/// <summary> current local object location context </summary>
-/// <param name="WorldId"> current local world id </param>
-/// <param name="TerritoryId"> current local territory id </param>
-/// <param name="WorldName"> current local world display name </param>
-/// <param name="TerritoryName"> current local territory display name </param>
-/// <param name="DivisionId"> current local housing division id </param>
-/// <param name="WardId"> current local housing ward id </param>
-/// <param name="HouseId"> current local housing plot or apartment if id is 100 (thank me later) </param>
-/// <param name="RoomId"> current local apartment or housing room id </param>
+/// <summary> object world and housing location context </summary>
+/// <param name="WorldId"> world id, or zero to use the current world on local create or import </param>
+/// <param name="WorldName"> world display name </param>
+/// <param name="TerritoryId"> territory id, or zero to use the current territory on local create or import </param>
+/// <param name="TerritoryName"> territory display name </param>
+/// <param name="DivisionId"> housing division id </param>
+/// <param name="WardId"> housing ward id </param>
+/// <param name="HouseId"> housing plot or apartment if id is 100 </param>
+/// <param name="RoomId"> apartment or housing room id </param>
 [MessagePackObject(keyAsPropertyName: true)]
 public sealed record ObjectLocationData(
     ushort WorldId,
-    uint TerritoryId,
     string WorldName,
+    uint TerritoryId,
     string TerritoryName,
     uint DivisionId,
     uint WardId,

@@ -1,27 +1,31 @@
-<?xml version="1.0" encoding="utf-8"?>
-<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Dalamud.NET.Sdk/15.0.0">
   <PropertyGroup>
-    <Version>0.1.0</Version>
+    <Version>1.0.0</Version>
     <Authors>abelfreyja</Authors>
-    <PackageProjectUrl>https://abelfreyja.xyz/</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/abelfreyja/Intoner</RepositoryUrl>
+    <Description>IPC definitions for Intoner!</Description>
     <PackageLicenseExpression>AGPL-3.0-or-later</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
     <IsPackable>true</IsPackable>
-    <TargetFramework>net10.0</TargetFramework>
+    <TargetFramework>net10.0-windows10.0.18362.0</TargetFramework>
     <Platforms>x64</Platforms>
     <Nullable>enable</Nullable>
-    <LangVersion>latest</LangVersion>
     <ImplicitUsings>enable</ImplicitUsings>
-    <NoWarn>$(NoWarn);MA0048</NoWarn>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);CS1591;MA0048</NoWarn>
+    <Use_DalamudPackager>false</Use_DalamudPackager>
+    <Use_Dalamud_ImGui>false</Use_Dalamud_ImGui>
   </PropertyGroup>
+
   <ItemGroup>
-    <PackageReference Include="MessagePack" Version="3.1.7" />
-    <PackageReference Include="Meziantou.Analyzer" Version="3.0.58">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="SonarAnalyzer.CSharp" Version="10.25.0.139117">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
+    <PackageReference Include="MessagePack.Annotations" Version="3.1.7" />
+    <PackageReference Include="Meziantou.Analyzer" Version="3.0.58" PrivateAssets="all" />
+    <PackageReference Include="SonarAnalyzer.CSharp" Version="10.25.0.139117" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="\" />
+    <InternalsVisibleTo Include="Intoner" />
+    <InternalsVisibleTo Include="Intoner.Api.Verification" />
   </ItemGroup>
 </Project>
