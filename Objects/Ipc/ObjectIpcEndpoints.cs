@@ -50,8 +50,8 @@ public static class ObjectIpcEndpoints
         public static readonly IpcEventEndpoint<ObjectSceneChanged> SceneChanged = new(Prefix + "Events.SceneChanged", ObjectApiCapabilities.RevisionEvents);
         /// <summary> persistent scene revision event </summary>
         public static readonly IpcEventEndpoint<PersistentObjectSceneChanged> PersistentSceneChanged = new(Prefix + "Events.PersistentSceneChanged", ObjectApiCapabilities.RevisionEvents);
-        /// <summary> saved layout revision event </summary>
-        public static readonly IpcEventEndpoint<SavedObjectLayoutsChanged> SavedLayoutsChanged = new(Prefix + "Events.SavedLayoutsChanged", ObjectApiCapabilities.SavedLayoutRevisions);
+        /// <summary> saved layouts changed event </summary>
+        public static readonly IpcEventEndpoint<SavedObjectLayoutsChanged> SavedLayoutsChanged = new(Prefix + "Events.SavedLayoutsChanged", ObjectApiCapabilities.SavedLayoutEvents);
     }
 
     /// <summary> API state operations </summary>
@@ -61,25 +61,25 @@ public static class ObjectIpcEndpoints
         public static readonly IpcEndpoint<ObjectApiInfo> GetInfo = new(Prefix + "State.GetInfo", ObjectApiCapabilities.None);
     }
 
-    /// <summary> persistent layout operations </summary>
+    /// <summary> saved layout operations </summary>
     public static class Layouts
     {
-        /// <summary> gets all saved layouts </summary>
+        /// <summary> gets identifying information for all saved layouts </summary>
         public static readonly IpcEndpoint<SavedObjectLayoutsSnapshot> GetAll = new(Prefix + "Layouts.GetAll", ObjectApiCapabilities.Layouts);
-        /// <summary> gets layouts composed into the current scene </summary>
-        public static readonly IpcEndpoint<IReadOnlyList<LoadedObjectLayout>> GetLoaded = new(Prefix + "Layouts.GetLoaded", ObjectApiCapabilities.Layouts);
+        /// <summary> gets one saved layout with its complete content </summary>
+        public static readonly IpcEndpoint<Guid, SavedObjectLayout?> Get = new(Prefix + "Layouts.Get", ObjectApiCapabilities.Layouts);
         /// <summary> gets the default layout id </summary>
         public static readonly IpcEndpoint<Guid?> GetDefault = new(Prefix + "Layouts.GetDefault", ObjectApiCapabilities.Layouts);
         /// <summary> creates an empty saved layout </summary>
-        public static readonly IpcEndpoint<string, ObjectLayoutMutationResult> Create = new(Prefix + "Layouts.Create", ObjectApiCapabilities.Layouts);
+        public static readonly IpcEndpoint<string, SavedObjectLayoutMutationResult> Create = new(Prefix + "Layouts.Create", ObjectApiCapabilities.Layouts);
         /// <summary> saves current persistent objects as a layout </summary>
-        public static readonly IpcEndpoint<SavedObjectLayoutSaveRequest, ObjectLayoutMutationResult> SaveCurrent = new(Prefix + "Layouts.SaveCurrent", ObjectApiCapabilities.Layouts);
+        public static readonly IpcEndpoint<SavedObjectLayoutSaveRequest, SavedObjectLayoutMutationResult> SaveCurrent = new(Prefix + "Layouts.SaveCurrent", ObjectApiCapabilities.Layouts);
         /// <summary> sets the default layout </summary>
-        public static readonly IpcEndpoint<SavedObjectLayoutSelectionRequest, ObjectLayoutMutationResult> SetDefault = new(Prefix + "Layouts.SetDefault", ObjectApiCapabilities.Layouts);
+        public static readonly IpcEndpoint<SavedObjectLayoutSetDefaultRequest, SavedObjectLayoutMutationResult> SetDefault = new(Prefix + "Layouts.SetDefault", ObjectApiCapabilities.Layouts);
         /// <summary> clears the default layout </summary>
-        public static readonly IpcEndpoint<long, ObjectLayoutMutationResult> ClearDefault = new(Prefix + "Layouts.ClearDefault", ObjectApiCapabilities.Layouts);
+        public static readonly IpcEndpoint<long, SavedObjectLayoutMutationResult> ClearDefault = new(Prefix + "Layouts.ClearDefault", ObjectApiCapabilities.Layouts);
         /// <summary> deletes a saved layout </summary>
-        public static readonly IpcEndpoint<SavedObjectLayoutDeleteRequest, ObjectLayoutMutationResult> Delete = new(Prefix + "Layouts.Delete", ObjectApiCapabilities.Layouts);
+        public static readonly IpcEndpoint<SavedObjectLayoutDeleteRequest, SavedObjectLayoutMutationResult> Delete = new(Prefix + "Layouts.Delete", ObjectApiCapabilities.Layouts);
     }
 
     /// <summary> temporary source operations </summary>
@@ -109,6 +109,8 @@ public static class ObjectIpcEndpoints
         public static readonly IpcEndpoint<ObjectSceneSnapshot> GetSnapshot = new(Prefix + "Scene.GetSnapshot", ObjectApiCapabilities.SceneQueries);
         /// <summary> gets one object from the composed scene </summary>
         public static readonly IpcEndpoint<Guid, WorldObject?> GetObject = new(Prefix + "Scene.GetObject", ObjectApiCapabilities.SceneQueries);
+        /// <summary> gets the layouts composed into the current scene </summary>
+        public static readonly IpcEndpoint<IReadOnlyList<LoadedObjectLayout>> GetLoadedLayouts = new(Prefix + "Scene.GetLoadedLayouts", ObjectApiCapabilities.SceneQueries);
     }
 
     /// <summary> persistent scene queries and updates </summary>

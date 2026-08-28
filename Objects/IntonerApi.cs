@@ -278,7 +278,7 @@ public sealed class IntonerApi : IDisposable
         => PublishRevision(change, change.InstanceId, change.PersistentRevision, ref _lastPersistentRevision, PersistentSceneChanged, nameof(PersistentSceneChanged));
 
     private void OnSavedLayoutsChanged(SavedObjectLayoutsChanged change)
-        => PublishRevision(change, change.InstanceId, change.LayoutRevision, ref _lastSavedLayoutsRevision, SavedLayoutsChanged, nameof(SavedLayoutsChanged));
+        => PublishRevision(change, change.InstanceId, change.SavedLayoutsRevision, ref _lastSavedLayoutsRevision, SavedLayoutsChanged, nameof(SavedLayoutsChanged));
 
     private void Subscribe<T>(IpcEventEndpoint<T> endpoint, Action<T> handler)
     {
@@ -427,18 +427,18 @@ public sealed class IntonerApi : IDisposable
     public sealed class LayoutOperations
     {
         private readonly Func<SavedObjectLayoutsSnapshot> _getAll;
-        private readonly Func<IReadOnlyList<LoadedObjectLayout>> _getLoaded;
+        private readonly Func<Guid, SavedObjectLayout?> _get;
         private readonly Func<Guid?> _getDefault;
-        private readonly Func<string, ObjectLayoutMutationResult> _create;
-        private readonly Func<SavedObjectLayoutSaveRequest, ObjectLayoutMutationResult> _saveCurrent;
-        private readonly Func<SavedObjectLayoutSelectionRequest, ObjectLayoutMutationResult> _setDefault;
-        private readonly Func<long, ObjectLayoutMutationResult> _clearDefault;
-        private readonly Func<SavedObjectLayoutDeleteRequest, ObjectLayoutMutationResult> _delete;
+        private readonly Func<string, SavedObjectLayoutMutationResult> _create;
+        private readonly Func<SavedObjectLayoutSaveRequest, SavedObjectLayoutMutationResult> _saveCurrent;
+        private readonly Func<SavedObjectLayoutSetDefaultRequest, SavedObjectLayoutMutationResult> _setDefault;
+        private readonly Func<long, SavedObjectLayoutMutationResult> _clearDefault;
+        private readonly Func<SavedObjectLayoutDeleteRequest, SavedObjectLayoutMutationResult> _delete;
 
         internal LayoutOperations(IntonerApiConnection connection)
         {
             _getAll = connection.Bind(ObjectIpcEndpoints.Layouts.GetAll);
-            _getLoaded = connection.Bind(ObjectIpcEndpoints.Layouts.GetLoaded);
+            _get = connection.Bind(ObjectIpcEndpoints.Layouts.Get);
             _getDefault = connection.Bind(ObjectIpcEndpoints.Layouts.GetDefault);
             _create = connection.Bind(ObjectIpcEndpoints.Layouts.Create);
             _saveCurrent = connection.Bind(ObjectIpcEndpoints.Layouts.SaveCurrent);
@@ -447,38 +447,40 @@ public sealed class IntonerApi : IDisposable
             _delete = connection.Bind(ObjectIpcEndpoints.Layouts.Delete);
         }
 
-        /// <summary> gets the current saved layouts and their revision </summary>
+        /// <summary> gets identifying information for all saved layouts and the revision for the complete list </summary>
         public SavedObjectLayoutsSnapshot GetAll() => _getAll();
 
-        /// <summary> gets the layouts currently loaded into the scene </summary>
-        public IReadOnlyList<LoadedObjectLayout> GetLoaded() => _getLoaded();
+        /// <summary> gets one saved layout with its complete content </summary>
+        /// <param name="layoutId"> saved layout id </param>
+        /// <returns> the saved layout, or null when it does not exist </returns>
+        public SavedObjectLayout? Get(Guid layoutId) => _get(layoutId);
 
         /// <summary> gets the id of the default layout, when one is selected </summary>
         public Guid? GetDefault() => _getDefault();
 
         /// <summary> creates an empty saved layout </summary>
-        public ObjectLayoutMutationResult Create(string name) => _create(name);
+        public SavedObjectLayoutMutationResult Create(string name) => _create(name);
 
         /// <summary> saves the current persistent objects as a new layout </summary>
-        public ObjectLayoutMutationResult SaveCurrent(string name, long expectedPersistentRevision)
+        public SavedObjectLayoutMutationResult SaveCurrent(string name, long expectedPersistentRevision)
             => _saveCurrent(new SavedObjectLayoutSaveRequest(expectedPersistentRevision, name));
 
-        /// <summary> selects the default layout </summary>
-        public ObjectLayoutMutationResult SetDefault(
+        /// <summary> sets the default layout </summary>
+        public SavedObjectLayoutMutationResult SetDefault(
             Guid layoutId,
             long expectedLayoutRevision,
             long expectedPersistentRevision)
-            => _setDefault(new SavedObjectLayoutSelectionRequest(
+            => _setDefault(new SavedObjectLayoutSetDefaultRequest(
                 expectedPersistentRevision,
                 expectedLayoutRevision,
                 layoutId));
 
         /// <summary> clears the default layout selection </summary>
-        public ObjectLayoutMutationResult ClearDefault(long expectedPersistentRevision)
+        public SavedObjectLayoutMutationResult ClearDefault(long expectedPersistentRevision)
             => _clearDefault(expectedPersistentRevision);
 
         /// <summary> deletes a saved layout </summary>
-        public ObjectLayoutMutationResult Delete(
+        public SavedObjectLayoutMutationResult Delete(
             Guid layoutId,
             long expectedLayoutRevision,
             long expectedPersistentRevision)
@@ -548,11 +550,13 @@ public sealed class IntonerApi : IDisposable
     {
         private readonly Func<ObjectSceneSnapshot> _getSnapshot;
         private readonly Func<Guid, WorldObject?> _getObject;
+        private readonly Func<IReadOnlyList<LoadedObjectLayout>> _getLoadedLayouts;
 
         internal SceneOperations(IntonerApiConnection connection)
         {
             _getSnapshot = connection.Bind(ObjectIpcEndpoints.Scene.GetSnapshot);
             _getObject = connection.Bind(ObjectIpcEndpoints.Scene.GetObject);
+            _getLoadedLayouts = connection.Bind(ObjectIpcEndpoints.Scene.GetLoadedLayouts);
         }
 
         /// <summary> gets a consistent snapshot of the complete scene </summary>
@@ -560,6 +564,9 @@ public sealed class IntonerApi : IDisposable
 
         /// <summary> gets one object from the complete scene </summary>
         public WorldObject? GetObject(Guid objectId) => _getObject(objectId);
+
+        /// <summary> gets the layouts currently loaded into the complete scene </summary>
+        public IReadOnlyList<LoadedObjectLayout> GetLoadedLayouts() => _getLoadedLayouts();
     }
 
     /// <summary> queries and updates for persistent scene state </summary>

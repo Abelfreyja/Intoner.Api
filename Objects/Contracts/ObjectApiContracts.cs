@@ -26,8 +26,8 @@ public enum ObjectApiCapabilities : ulong
     RevisionEvents = 1UL << 7,
     /// <summary> revision checked persistent scene replacement </summary>
     PersistentSceneApply = 1UL << 8,
-    /// <summary> saved layout revision notifications </summary>
-    SavedLayoutRevisions = 1UL << 9,
+    /// <summary> saved layout change notifications </summary>
+    SavedLayoutEvents = 1UL << 9,
 }
 
 /// <summary> current lifecycle state of the Intoner API host </summary>
@@ -39,7 +39,7 @@ public enum ObjectApiHostState
     Disposing = 2,
 }
 
-/// <summary> status returned by persistent object and layout mutations </summary>
+/// <summary> status returned by mutation operations </summary>
 public enum ObjectApiResultStatus
 {
     /// <summary> the mutation completed successfully </summary>
@@ -94,13 +94,13 @@ public sealed record ObjectSceneChanged(Guid InstanceId, long SceneRevision);
 [MessagePackObject(keyAsPropertyName: true)]
 public sealed record PersistentObjectSceneChanged(Guid InstanceId, long PersistentRevision);
 
-/// <summary> saved layout revision notification </summary>
+/// <summary> notification sent when the saved layouts change </summary>
 /// <param name="InstanceId"> API host instance that produced the revision </param>
-/// <param name="LayoutRevision"> new saved layout revision </param>
+/// <param name="SavedLayoutsRevision"> revision that changes whenever a saved layout is added, changed, or removed </param>
 [MessagePackObject(keyAsPropertyName: true)]
-public sealed record SavedObjectLayoutsChanged(Guid InstanceId, long LayoutRevision);
+public sealed record SavedObjectLayoutsChanged(Guid InstanceId, long SavedLayoutsRevision);
 
-/// <summary> result of a revison checked persistent scene replacement </summary>
+/// <summary> result of a revision checked persistent scene replacement </summary>
 /// <param name="Status"> typed result status </param>
 /// <param name="IsAccepted"> whether the requested persistent state was committed </param>
 /// <param name="SceneRevision"> composed scene revision after the request </param>
@@ -143,20 +143,20 @@ public sealed record ObjectMutationResult(
     public bool IsSuccess => Status == ObjectApiResultStatus.Success;
 }
 
-/// <summary> result of a persistent layout mutation </summary>
+/// <summary> result of a saved layout mutation </summary>
 /// <param name="Status"> typed result status </param>
 /// <param name="IsAccepted"> whether the requested saved or selected layout state was committed </param>
 /// <param name="LayoutId"> affected layout id when available </param>
-/// <param name="LayoutRevision"> saved layout revision after the operation </param>
+/// <param name="SavedLayoutsRevision"> revision for all saved layouts after the operation </param>
 /// <param name="SceneRevision"> composed scene revision after the operation </param>
 /// <param name="PersistentRevision"> persistent scene revision after the operation </param>
 /// <param name="Message"> short diagnostic intended for logs </param>
 [MessagePackObject(keyAsPropertyName: true)]
-public sealed record ObjectLayoutMutationResult(
+public sealed record SavedObjectLayoutMutationResult(
     ObjectApiResultStatus Status,
     bool IsAccepted,
     Guid? LayoutId,
-    long LayoutRevision,
+    long SavedLayoutsRevision,
     long SceneRevision,
     long PersistentRevision,
     string Message = "")

@@ -92,27 +92,45 @@ public sealed record PersistentObjectSet(
     IReadOnlyList<string> Folders,
     IReadOnlyDictionary<string, string> FolderColors);
 
-/// <summary> saved local layout </summary>
+/// <summary> identifying information for a saved layout </summary>
 /// <param name="Id"> saved layout id </param>
 /// <param name="Name"> saved layout name </param>
+/// <param name="Revision"> revision for this layout </param>
 /// <param name="CreatedAtUtc"> layout creation timestamp </param>
 /// <param name="UpdatedAtUtc"> last layout update timestamp </param>
-/// <param name="Content"> persistent layout objects and organization </param>
+[MessagePackObject(keyAsPropertyName: true)]
+public sealed record SavedObjectLayoutInfo(
+    Guid Id,
+    string Name,
+    long Revision,
+    DateTime CreatedAtUtc,
+    DateTime UpdatedAtUtc);
+
+/// <summary> saved layout with its complete content </summary>
+/// <param name="Id"> saved layout id </param>
+/// <param name="Name"> saved layout name </param>
+/// <param name="Revision"> revision for this layout </param>
+/// <param name="CreatedAtUtc"> layout creation timestamp </param>
+/// <param name="UpdatedAtUtc"> last layout update timestamp </param>
+/// <param name="Content"> persistent objects and folder organization </param>
 [MessagePackObject(keyAsPropertyName: true)]
 public sealed record SavedObjectLayout(
     Guid Id,
     string Name,
+    long Revision,
     DateTime CreatedAtUtc,
     DateTime UpdatedAtUtc,
     PersistentObjectSet Content);
 
-/// <summary> revisioned snapshot of all saved local layouts </summary>
-/// <param name="Revision"> saved layout revision </param>
-/// <param name="Layouts"> saved layouts in display order </param>
+/// <summary> saved layouts stored by the current API host </summary>
+/// <param name="InstanceId"> API host instance that owns the revision </param>
+/// <param name="Revision"> revision that changes whenever a saved layout is added, changed, or removed </param>
+/// <param name="Layouts"> saved layout information in display order </param>
 [MessagePackObject(keyAsPropertyName: true)]
 public sealed record SavedObjectLayoutsSnapshot(
+    Guid InstanceId,
     long Revision,
-    IReadOnlyList<SavedObjectLayout> Layouts);
+    IReadOnlyList<SavedObjectLayoutInfo> Layouts);
 
 /// <summary> revision checked request to save the current persistent scene as a layout </summary>
 /// <param name="ExpectedPersistentRevision"> persistent scene revision that must still be current </param>
@@ -122,19 +140,19 @@ public sealed record SavedObjectLayoutSaveRequest(
     long ExpectedPersistentRevision,
     string Name);
 
-/// <summary> revision checked default layout selection </summary>
+/// <summary> revision checked request to set the default layout </summary>
 /// <param name="ExpectedPersistentRevision"> persistent scene revision that must still be current </param>
-/// <param name="ExpectedLayoutRevision"> saved layout revision that must still be current </param>
+/// <param name="ExpectedLayoutRevision"> selected layout revision that must still be current </param>
 /// <param name="LayoutId"> layout to select </param>
 [MessagePackObject(keyAsPropertyName: true)]
-public sealed record SavedObjectLayoutSelectionRequest(
+public sealed record SavedObjectLayoutSetDefaultRequest(
     long ExpectedPersistentRevision,
     long ExpectedLayoutRevision,
     Guid LayoutId);
 
 /// <summary> revision checked saved layout deletion </summary>
 /// <param name="ExpectedPersistentRevision"> persistent scene revision that must still be current </param>
-/// <param name="ExpectedLayoutRevision"> saved layout revision that must still be current </param>
+/// <param name="ExpectedLayoutRevision"> target layout revision that must still be current </param>
 /// <param name="LayoutId"> layout to delete </param>
 [MessagePackObject(keyAsPropertyName: true)]
 public sealed record SavedObjectLayoutDeleteRequest(
@@ -148,7 +166,7 @@ public sealed record SavedObjectLayoutDeleteRequest(
 /// <param name="SourceKey"> source key for temporary layouts, or the layout id string for the default layout </param>
 /// <param name="SourceSessionId"> source session id for temporary layouts, or 'Guid.Empty' for the local default layout </param>
 /// <param name="Name"> loaded layout display name </param>
-/// <param name="Revision"> current source revision for temporary layouts, or '0' for the local default layout </param>
+/// <param name="Revision"> current source revision </param>
 /// <param name="UpdatedAtUtc"> last update time for this source </param>
 /// <param name="Objects"> full object list for this source </param>
 [MessagePackObject(keyAsPropertyName: true)]
@@ -186,9 +204,9 @@ public sealed record PersistentObjectSceneSnapshot(
 
 /// <summary> desired content for the current default layout </summary>
 /// <param name="LayoutId"> current default layout returned by the scene snapshot </param>
-/// <param name="Content"> replacement persistent layout content </param>
+/// <param name="Content"> replacement objects and folder organization </param>
 [MessagePackObject(keyAsPropertyName: true)]
-public sealed record PersistentDefaultLayoutState(
+public sealed record DefaultLayoutUpdate(
     Guid LayoutId,
     PersistentObjectSet Content);
 
@@ -200,7 +218,7 @@ public sealed record PersistentDefaultLayoutState(
 public sealed record PersistentObjectSceneApplyRequest(
     long ExpectedRevision,
     PersistentObjectSet Standalone,
-    PersistentDefaultLayoutState? DefaultLayout);
+    DefaultLayoutUpdate? DefaultLayout);
 
 /// <summary> current composed object scene </summary>
 /// <param name="Revision"> local scene revision </param>
