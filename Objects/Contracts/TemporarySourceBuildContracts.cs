@@ -8,10 +8,12 @@ public enum TemporarySourceBuildStatus
 {
     /// <summary> a complete source payload was produced </summary>
     Success = 0,
-    /// <summary> a usable source payload was produced with diagnostics </summary>
+    /// <summary> a complete source payload was produced with nonfatal diagnostics </summary>
     CompletedWithWarnings = 1,
     /// <summary> the request could not produce a source payload </summary>
     InvalidRequest = 2,
+    /// <summary> required resources could not be resolved and no source payload was produced </summary>
+    ResolutionFailed = 3,
 }
 
 /// <summary> temporary source build diagnostic severity </summary>
@@ -21,7 +23,7 @@ public enum TemporarySourceBuildDiagnosticSeverity
     Info = 1,
     /// <summary> nonfatal build issue </summary>
     Warning = 2,
-    /// <summary> build issue that prevented part of the payload </summary>
+    /// <summary> build issue that prevented a complete payload </summary>
     Error = 3,
 }
 
@@ -54,7 +56,7 @@ public sealed record TemporarySourceBuildDiagnostic(
 /// <summary> temporary source and collection payloads built from local objects </summary>
 /// <param name="Status"> build status </param>
 /// <param name="Message"> summary message </param>
-/// <param name="Source"> complete temporary source payload with generated collection ids, or null when the request is invalid </param>
+/// <param name="Source"> complete temporary source payload with generated collection ids, or null when the build failed </param>
 /// <param name="LocalFilePaths"> local files referenced by the generated collection redirects </param>
 /// <param name="Diagnostics"> build diagnostics </param>
 [MessagePackObject(keyAsPropertyName: true)]
@@ -65,7 +67,7 @@ public sealed record TemporarySourceBuildResult(
     IReadOnlyList<string> LocalFilePaths,
     IReadOnlyList<TemporarySourceBuildDiagnostic> Diagnostics)
 {
-    /// <summary> whether a usable source payload was produced </summary>
+    /// <summary> whether a complete source payload was produced </summary>
     [IgnoreMember]
     public bool IsSuccess
         => Status is TemporarySourceBuildStatus.Success or TemporarySourceBuildStatus.CompletedWithWarnings;
