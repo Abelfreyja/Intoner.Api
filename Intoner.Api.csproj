@@ -1,6 +1,6 @@
 <Project Sdk="Dalamud.NET.Sdk/15.0.0">
   <PropertyGroup>
-    <Version>1.0.0</Version>
+    <Version>2.0.0</Version>
     <Authors>abelfreyja</Authors>
     <RepositoryUrl>https://github.com/abelfreyja/Intoner</RepositoryUrl>
     <Description>IPC definitions for Intoner!</Description>
@@ -17,9 +17,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="MessagePack.Annotations" Version="3.1.7" />
-    <PackageReference Include="Meziantou.Analyzer" Version="3.0.58" PrivateAssets="all" />
-    <PackageReference Include="SonarAnalyzer.CSharp" Version="10.25.0.139117" PrivateAssets="all" />
+    <PackageReference Update="DotNet.ReproducibleBuilds" Version="2.0.5" />
+    <PackageReference Include="MessagePack.Annotations" Version="3.1.12" />
+    <PackageReference Include="Meziantou.Analyzer" Version="3.0.317" PrivateAssets="all" />
+    <PackageReference Include="SonarAnalyzer.CSharp" Version="10.35.0.4138" PrivateAssets="all" />
   </ItemGroup>
 
   <ItemGroup>

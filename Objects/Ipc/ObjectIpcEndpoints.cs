@@ -68,16 +68,16 @@ public static class ObjectIpcEndpoints
         public static readonly IpcEndpoint<SavedObjectLayoutsSnapshot> GetAll = new(Prefix + "Layouts.GetAll", ObjectApiCapabilities.Layouts);
         /// <summary> gets one saved layout with its complete content </summary>
         public static readonly IpcEndpoint<Guid, SavedObjectLayout?> Get = new(Prefix + "Layouts.Get", ObjectApiCapabilities.Layouts);
-        /// <summary> gets the default layout id </summary>
-        public static readonly IpcEndpoint<Guid?> GetDefault = new(Prefix + "Layouts.GetDefault", ObjectApiCapabilities.Layouts);
+        /// <summary> gets the creation destination, or null for standalone storage </summary>
+        public static readonly IpcEndpoint<Guid?> GetCreation = new(Prefix + "Layouts.GetCreation", ObjectApiCapabilities.Layouts);
         /// <summary> creates an empty saved layout </summary>
         public static readonly IpcEndpoint<string, SavedObjectLayoutMutationResult> Create = new(Prefix + "Layouts.Create", ObjectApiCapabilities.Layouts);
         /// <summary> saves current persistent objects as a layout </summary>
         public static readonly IpcEndpoint<SavedObjectLayoutSaveRequest, SavedObjectLayoutMutationResult> SaveCurrent = new(Prefix + "Layouts.SaveCurrent", ObjectApiCapabilities.Layouts);
-        /// <summary> sets the default layout </summary>
-        public static readonly IpcEndpoint<SavedObjectLayoutSetDefaultRequest, SavedObjectLayoutMutationResult> SetDefault = new(Prefix + "Layouts.SetDefault", ObjectApiCapabilities.Layouts);
-        /// <summary> clears the default layout </summary>
-        public static readonly IpcEndpoint<long, SavedObjectLayoutMutationResult> ClearDefault = new(Prefix + "Layouts.ClearDefault", ObjectApiCapabilities.Layouts);
+        /// <summary> changes enabled membership for one saved layout </summary>
+        public static readonly IpcEndpoint<SavedObjectLayoutSetEnabledRequest, SavedObjectLayoutMutationResult> SetEnabled = new(Prefix + "Layouts.SetEnabled", ObjectApiCapabilities.Layouts);
+        /// <summary> sets the creation destination without changing enabled membership </summary>
+        public static readonly IpcEndpoint<CreationLayoutRequest, SavedObjectLayoutMutationResult> SetCreation = new(Prefix + "Layouts.SetCreation", ObjectApiCapabilities.Layouts);
         /// <summary> deletes a saved layout </summary>
         public static readonly IpcEndpoint<SavedObjectLayoutDeleteRequest, SavedObjectLayoutMutationResult> Delete = new(Prefix + "Layouts.Delete", ObjectApiCapabilities.Layouts);
     }

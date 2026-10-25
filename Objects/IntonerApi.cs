@@ -428,22 +428,22 @@ public sealed class IntonerApi : IDisposable
     {
         private readonly Func<SavedObjectLayoutsSnapshot> _getAll;
         private readonly Func<Guid, SavedObjectLayout?> _get;
-        private readonly Func<Guid?> _getDefault;
+        private readonly Func<Guid?> _getCreation;
         private readonly Func<string, SavedObjectLayoutMutationResult> _create;
         private readonly Func<SavedObjectLayoutSaveRequest, SavedObjectLayoutMutationResult> _saveCurrent;
-        private readonly Func<SavedObjectLayoutSetDefaultRequest, SavedObjectLayoutMutationResult> _setDefault;
-        private readonly Func<long, SavedObjectLayoutMutationResult> _clearDefault;
+        private readonly Func<SavedObjectLayoutSetEnabledRequest, SavedObjectLayoutMutationResult> _setEnabled;
+        private readonly Func<CreationLayoutRequest, SavedObjectLayoutMutationResult> _setCreation;
         private readonly Func<SavedObjectLayoutDeleteRequest, SavedObjectLayoutMutationResult> _delete;
 
         internal LayoutOperations(IntonerApiConnection connection)
         {
             _getAll = connection.Bind(ObjectIpcEndpoints.Layouts.GetAll);
             _get = connection.Bind(ObjectIpcEndpoints.Layouts.Get);
-            _getDefault = connection.Bind(ObjectIpcEndpoints.Layouts.GetDefault);
+            _getCreation = connection.Bind(ObjectIpcEndpoints.Layouts.GetCreation);
             _create = connection.Bind(ObjectIpcEndpoints.Layouts.Create);
             _saveCurrent = connection.Bind(ObjectIpcEndpoints.Layouts.SaveCurrent);
-            _setDefault = connection.Bind(ObjectIpcEndpoints.Layouts.SetDefault);
-            _clearDefault = connection.Bind(ObjectIpcEndpoints.Layouts.ClearDefault);
+            _setEnabled = connection.Bind(ObjectIpcEndpoints.Layouts.SetEnabled);
+            _setCreation = connection.Bind(ObjectIpcEndpoints.Layouts.SetCreation);
             _delete = connection.Bind(ObjectIpcEndpoints.Layouts.Delete);
         }
 
@@ -455,29 +455,32 @@ public sealed class IntonerApi : IDisposable
         /// <returns> the saved layout, or null when it does not exist </returns>
         public SavedObjectLayout? Get(Guid layoutId) => _get(layoutId);
 
-        /// <summary> gets the id of the default layout, when one is selected </summary>
-        public Guid? GetDefault() => _getDefault();
+        /// <summary> gets the destination for new objects, or null for standalone storage </summary>
+        public Guid? GetCreation() => _getCreation();
 
-        /// <summary> creates an empty saved layout </summary>
+        /// <summary> creates an empty enabled layout and selects it for new objects </summary>
         public SavedObjectLayoutMutationResult Create(string name) => _create(name);
 
-        /// <summary> saves the current persistent objects as a new layout </summary>
+        /// <summary> saves current objects in a new enabled layout and selects it for new objects </summary>
         public SavedObjectLayoutMutationResult SaveCurrent(string name, long expectedPersistentRevision)
             => _saveCurrent(new SavedObjectLayoutSaveRequest(expectedPersistentRevision, name));
 
-        /// <summary> sets the default layout </summary>
-        public SavedObjectLayoutMutationResult SetDefault(
+        /// <summary> enables or disables one layout without changing other enabled layouts </summary>
+        /// <remarks> enabling the first layout also selects it for new objects </remarks>
+        public SavedObjectLayoutMutationResult SetEnabled(
             Guid layoutId,
+            bool enabled,
             long expectedLayoutRevision,
             long expectedPersistentRevision)
-            => _setDefault(new SavedObjectLayoutSetDefaultRequest(
+            => _setEnabled(new SavedObjectLayoutSetEnabledRequest(
                 expectedPersistentRevision,
                 expectedLayoutRevision,
-                layoutId));
+                layoutId,
+                enabled));
 
-        /// <summary> clears the default layout selection </summary>
-        public SavedObjectLayoutMutationResult ClearDefault(long expectedPersistentRevision)
-            => _clearDefault(expectedPersistentRevision);
+        /// <summary> selects an enabled layout for new objects, or null for standalone storage </summary>
+        public SavedObjectLayoutMutationResult SetCreation(Guid? layoutId, long expectedPersistentRevision)
+            => _setCreation(new CreationLayoutRequest(expectedPersistentRevision, layoutId));
 
         /// <summary> deletes a saved layout </summary>
         public SavedObjectLayoutMutationResult Delete(
@@ -595,6 +598,7 @@ public sealed class IntonerApi : IDisposable
     }
 
     /// <summary> operations for persistent objects </summary>
+    /// <remarks> since multiple layouts can be enabled now, existing targets must be unassigned or belong to an enabled layout </remarks>
     public sealed class ObjectOperations
     {
         private readonly Func<PersistentObjectWriteRequest, ObjectMutationResult> _create;
