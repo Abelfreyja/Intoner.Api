@@ -132,7 +132,11 @@ public sealed record LightModelData(
     float Intensity,
     LightShapeData Shape,
     LightShadowData Shadow,
-    string ProjectionTexturePath = "");
+    string ProjectionTexturePath = "")
+{
+    /// <summary> projection TEX game path, or empty for no texture </summary>
+    public string ProjectionTexturePath { get; init; } = ProjectionTexturePath ?? string.Empty;
+}
 
 /// <summary> object model payload </summary>
 /// <param name="BgObject"> bgobject model data for 'BgObject' objects </param>

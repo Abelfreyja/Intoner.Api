@@ -108,7 +108,7 @@ public sealed record PersistentObjectPatchRequest(
 /// <param name="Objects"> persistent object set </param>
 /// <param name="Folders"> ordered explicit folder paths, including empty folders </param>
 /// <param name="FolderColors"> folder colors keyed by folder path using '#RRGGBB' or '#RRGGBBAA'  </param>
-[MessagePackObject(keyAsPropertyName: true)]
+[MessagePackObject(keyAsPropertyName: true, SuppressSourceGeneration = true)]
 public sealed record PersistentObjectSet(
     IReadOnlyList<PersistentObject> Objects,
     IReadOnlyList<string> Folders,
